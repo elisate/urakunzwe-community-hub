@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Target, Eye, Heart, Shield, Lightbulb, Users, Star, Award } from "lucide-react";
 import teachingImage from "@/assets/images/Urakunzwe-problem.jpg";
 import communityImage from "@/assets/images/urakunzwe-community-activity.jpg";
-import aboutBgImage from "@/assets/images/Urakunzwe_About.jpg";
+import aboutBgImage from "@/assets/images/Urakunzwe_about.jpg";
 
 const values = [
   { icon: Heart, name: "Love & Compassion", description: "We approach every child with unconditional love." },
