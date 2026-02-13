@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
-import urakunzweLogo from "@/assets/urakunzwe_logo.jpg";
+import urakunzweLogo from "@/assets/Urakunzwe_logo.jpg";
 
 const quickLinks = [
   { name: "About Us", href: "/about" },
