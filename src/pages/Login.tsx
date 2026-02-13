@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -9,39 +10,40 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Heart, Loader2 } from "lucide-react";
 
 export default function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-
     const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const [isLoading, setIsLoading] = useState(false);
+    const [serverError, setServerError] = useState("");
+
     const from = location.state?.from?.pathname || "/admin/dashboard";
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // 1. Initialize React Hook Form
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+    });
+
+    // 2. Handle Form Submission
+    const onSubmit = async (data: any) => {
         setIsLoading(true);
-        setError("");
+        setServerError("");
 
         try {
-            // Calling the API endpoint matching the user's backend snippet: authRouter.post("/login", login);
-            // Assuming mounted at /auth/login based on mainRouter context
-            const response = await api.post("/auth/login", {
-                email,
-                password,
-            });
-
+            const response = await api.post("/auth/login", data);
             const { token, user } = response.data;
 
-            // Update auth context
             login(token, user);
-
-            // Redirect
             navigate(from, { replace: true });
         } catch (err: any) {
             console.error("Login error:", err);
-            setError(err.response?.data?.message || "Invalid email or password");
+            setServerError(err.response?.data?.message || "Invalid email or password");
         } finally {
             setIsLoading(false);
         }
@@ -61,35 +63,56 @@ export default function Login() {
                         Enter your email below to access the admin dashboard.
                     </CardDescription>
                 </CardHeader>
-                <form onSubmit={handleSubmit}>
+
+                {/* 3. Wrap in handleSubmit */}
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <CardContent className="space-y-4">
-                        {error && (
+                        {/* Backend/Server Error Display */}
+                        {serverError && (
                             <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm font-medium">
-                                {error}
+                                {serverError}
                             </div>
                         )}
+
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 placeholder="m@example.com"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                // 4. Register field with validation rules
+                                {...register("email", { 
+                                    required: "Email is required",
+                                    pattern: {
+                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                        message: "Invalid email address"
+                                    }
+                                })}
+                                className={errors.email ? "border-destructive" : ""}
                             />
+                            {/* 5. Display Validation Errors */}
+                            {errors.email && (
+                                <p className="text-xs text-destructive font-medium">{errors.email.message}</p>
+                            )}
                         </div>
+
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
                             <Input
                                 id="password"
                                 type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                {...register("password", { 
+                                    required: "Password is required",
+                                    minLength: { value: 6, message: "Minimum 6 characters" }
+                                })}
+                                className={errors.password ? "border-destructive" : ""}
                             />
+                            {errors.password && (
+                                <p className="text-xs text-destructive font-medium">{errors.password.message}</p>
+                            )}
                         </div>
                     </CardContent>
+
                     <CardFooter>
                         <Button className="w-full gradient-primary" type="submit" disabled={isLoading}>
                             {isLoading ? (
