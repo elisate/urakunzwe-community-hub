@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Heart } from "lucide-react";
-import urakunzweLogo from "@/assets/urakunzwe_logo.jpg";
+import urakunzweLogo from "@/assets/Urakunzwe_logo.jpg";
 
 const navLinks = [
   { name: "About", href: "/about" },
